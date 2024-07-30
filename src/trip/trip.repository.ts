@@ -47,6 +47,24 @@ export class TripRepository {
     });
   }
 
+  async findById(id: string) {
+    const trip = await this.prisma.trip.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          destination: true,
+          starts_at: true,
+          ends_at: true
+        },
+      });
+
+    if (!trip) {
+        throw new BadRequestException('Viagem não encontrada.');
+    }
+
+    return trip;
+  }
+
   async create(createTripDTO: CreateTripDTO) {
     const { user_id, destination, emails_to_invite, ends_at, starts_at } =
       createTripDTO;

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDTO } from './dto/create-trip.dto';
 
@@ -9,6 +9,11 @@ export class TripController {
   @Get()
   async find(@Query('user_id') user_id: string) {
     return await this.service.find(user_id);
+  }
+
+  @Get(':id')
+  async findById(@Param('id') id: string) {
+    return await this.service.findById(id);
   }
 
   @Post()

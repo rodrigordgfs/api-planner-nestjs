@@ -10,6 +10,10 @@ export class TripService {
     return await this.repository.find(user_id);
   }
 
+  async findById(id: string) {
+    return await this.repository.findById(id);
+  }
+
   async create(createTripDTO: CreateTripDTO) {
     return await this.repository.create(createTripDTO);
   }
