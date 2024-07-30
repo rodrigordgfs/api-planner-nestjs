@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from './lib/prisma/prisma.service';
-import { UserModule } from './user/user.module';
+import { UserModule } from './routes/user/user.module';
 import { SupabaseModule } from './lib/supabase/supabase.module';
-import { TripModule } from './trip/trip.module';
+import { TripModule } from './routes/trip/trip.module';
 
 @Module({
   imports: [UserModule, SupabaseModule, TripModule],

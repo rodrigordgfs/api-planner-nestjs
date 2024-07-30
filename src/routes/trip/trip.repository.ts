@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { CreateTripDTO } from './dto/create-trip.dto';
-import dayjs from '../lib/dayjs';
+import dayjs from '../../lib/dayjs';
 import { UpdateTripDTO } from './dto/update-trip.dto';
 
 @Injectable()
