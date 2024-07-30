@@ -11,12 +11,15 @@ import {
 import { TripService } from './trip.service';
 import { CreateTripDTO } from './dto/create-trip.dto';
 import { UpdateTripDTO } from './dto/update-trip.dto';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Trips')
 @Controller('trips')
 export class TripController {
   constructor(private readonly service: TripService) {}
 
   @Get()
+  @ApiQuery({ name: 'user_id', required: false })
   async find(@Query('user_id') user_id: string) {
     return await this.service.find(user_id);
   }

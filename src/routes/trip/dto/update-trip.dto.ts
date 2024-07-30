@@ -1,10 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MinLength, IsDateString } from 'class-validator';
 
 export class UpdateTripDTO {
+  @ApiProperty()
   @IsString({ message: 'Destino precisa ser um texto' })
   @MinLength(4, { message: 'Destino precisa ter no mínimo 4 caracteres' })
   destination: string;
 
+  @ApiProperty()
   @IsDateString(
     {},
     {
@@ -13,6 +16,7 @@ export class UpdateTripDTO {
   )
   starts_at: string;
 
+  @ApiProperty()
   @IsDateString(
     {},
     {

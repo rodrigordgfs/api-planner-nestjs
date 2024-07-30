@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   MinLength,
@@ -7,13 +8,16 @@ import {
 } from 'class-validator';
 
 export class CreateTripDTO {
+  @ApiProperty()
   @IsUUID('4', { message: 'Id precisa ser um UUID versão 4' })
   user_id: string;
 
+  @ApiProperty()
   @IsString({ message: 'Destino precisa ser um texto' })
   @MinLength(4, { message: 'Destino precisa ter no mínimo 4 caracteres' })
   destination: string;
 
+  @ApiProperty()
   @IsDateString(
     {},
     {
@@ -22,6 +26,7 @@ export class CreateTripDTO {
   )
   starts_at: string;
 
+  @ApiProperty()
   @IsDateString(
     {},
     {
@@ -31,6 +36,7 @@ export class CreateTripDTO {
   )
   ends_at: string;
 
+  @ApiProperty()
   @IsArray({ message: 'Acompanhantes precisa ser um array' })
   @IsString({
     each: true,

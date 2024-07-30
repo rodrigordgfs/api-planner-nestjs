@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { LinkService } from './link.service';
 import { CreateLinkDTO } from './dto/create-link.dto';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Links')
 @Controller('links')
 export class LinkController {
   constructor(private readonly service: LinkService) {}
@@ -21,6 +23,7 @@ export class LinkController {
   }
 
   @Get()
+  @ApiQuery({ name: 'trip_id', required: false })
   async find(@Query('trip_id') trip_id: string) {
     return await this.service.find(trip_id);
   }
