@@ -22,4 +22,8 @@ export class TripService {
   async update(id: string, updateTripDTO: UpdateTripDTO) {
     return await this.repository.update(id, updateTripDTO);
   }
+
+  async delete(id: string) {
+    return await this.repository.delete(id);
+  }
 }

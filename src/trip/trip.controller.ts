@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { TripService } from './trip.service';
 import { CreateTripDTO } from './dto/create-trip.dto';
 import { UpdateTripDTO } from './dto/update-trip.dto';
@@ -25,5 +34,10 @@ export class TripController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateTripDTO: UpdateTripDTO) {
     return await this.service.update(id, updateTripDTO);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return await this.service.delete(id);
   }
 }

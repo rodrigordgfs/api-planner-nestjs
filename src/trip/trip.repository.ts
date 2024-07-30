@@ -204,14 +204,45 @@ export class TripRepository {
     }
 
     return await this.prisma.trip.update({
-        where: {
-          id: id,
-        },
-        data: {
-          destination,
-          starts_at: new Date(startsAtISO),
-          ends_at: new Date(endsAtISO),
-        },
-      });
+      where: {
+        id: id,
+      },
+      data: {
+        destination,
+        starts_at: new Date(startsAtISO),
+        ends_at: new Date(endsAtISO),
+      },
+    });
+  }
+
+  async delete(id: string) {
+    const trip = await this.prisma.trip.findUnique({
+      where: { id },
+    });
+
+    if (!trip) {
+      throw new BadRequestException('Viagem não encontrada.');
+    }
+
+    const participants = await this.prisma.participant.findMany({
+      where: {
+        trip_id: id,
+        is_confirmed: true,
+        is_owner: false,
+      },
+    });
+
+    if (participants.length > 0) {
+      throw new BadRequestException(
+        'Não é possível remover uma viagem com participantes confirmados',
+      );
+    }
+
+    return await this.prisma.trip.delete({
+      select: { id: true },
+      where: {
+        id,
+      },
+    });
   }
 }
