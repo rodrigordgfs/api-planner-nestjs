@@ -1,3 +1,4 @@
+// src/auth/auth.middleware.ts
 import {
   Inject,
   Injectable,
@@ -14,6 +15,13 @@ export class AuthMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    if (
+      req.originalUrl.startsWith('/auth/login') ||
+      req.originalUrl.startsWith('/auth/register')
+    ) {
+      return next();
+    }
+
     const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
