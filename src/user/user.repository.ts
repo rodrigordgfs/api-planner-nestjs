@@ -12,4 +12,12 @@ export class UserRepository {
       },
     });
   }
+
+  async findById(id: string) {
+    return await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+  }
 }

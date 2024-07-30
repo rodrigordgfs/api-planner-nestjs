@@ -8,4 +8,8 @@ export class UserService {
   async find(email?: string) {
     return await this.repository.find(email);
   }
+
+  async findById(id: string) {
+    return await this.repository.findById(id);
+  }
 }
