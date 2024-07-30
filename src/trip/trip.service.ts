@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TripRepository } from './trip.repository';
 import { CreateTripDTO } from './dto/create-trip.dto';
+import { UpdateTripDTO } from './dto/update-trip.dto';
 
 @Injectable()
 export class TripService {
@@ -16,5 +17,9 @@ export class TripService {
 
   async create(createTripDTO: CreateTripDTO) {
     return await this.repository.create(createTripDTO);
+  }
+
+  async update(id: string, updateTripDTO: UpdateTripDTO) {
+    return await this.repository.update(id, updateTripDTO);
   }
 }
