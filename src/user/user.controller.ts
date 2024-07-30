@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
+import { UpdateUserDTO } from './dto/update-user-dto';
 
 @Controller('users')
 export class UserController {
@@ -13,5 +14,10 @@ export class UserController {
   @Get(':id')
   async findById(@Param('id') id: string) {
     return await this.service.findById(id);
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() updateUserDTO: UpdateUserDTO) {
+    return await this.service.update(id, updateUserDTO);
   }
 }
