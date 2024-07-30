@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/lib/prisma.service';
+import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { UpdateUserDTO } from './dto/update-user-dto';
 import { SupabaseClient } from '@supabase/supabase-js';
 
