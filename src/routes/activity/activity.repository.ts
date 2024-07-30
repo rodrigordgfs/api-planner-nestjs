@@ -3,6 +3,7 @@ import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { CreateActivityDTO } from './dto/create-activity.dto';
 import dayjs from '../../lib/dayjs';
 import { UpdateActivityDTO } from './dto/update-activity.dto';
+import { ChangeDoneStatusActivityDTO } from './dto/change-done-status-activity.dto';
 
 @Injectable()
 export class ActivityRepository {
@@ -120,6 +121,31 @@ export class ActivityRepository {
     return await this.prisma.activity.delete({
       select: { id: true },
       where: { id },
+    });
+  }
+
+  async changeDoneStatus(
+    id: string,
+    changeDoneStatusActivityDTO: ChangeDoneStatusActivityDTO,
+  ) {
+    const { is_done } = changeDoneStatusActivityDTO;
+
+    const activity = await this.prisma.activity.findUnique({
+      where: { id },
+    });
+
+    if (!activity) {
+      throw new BadRequestException('Atividade não encontrada');
+    }
+
+    return await this.prisma.activity.update({
+      select: { id: true, is_done: true },
+      where: {
+        id,
+      },
+      data: {
+        is_done,
+      },
     });
   }
 }

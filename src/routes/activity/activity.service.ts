@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ActivityRepository } from './activity.repository';
 import { CreateActivityDTO } from './dto/create-activity.dto';
 import { UpdateActivityDTO } from './dto/update-activity.dto';
+import { ChangeDoneStatusActivityDTO } from './dto/change-done-status-activity.dto';
 
 @Injectable()
 export class ActivityService {
@@ -25,5 +26,15 @@ export class ActivityService {
 
   async delete(id: string) {
     return await this.repository.delete(id);
+  }
+
+  async changeDoneStatus(
+    id: string,
+    changeDoneStatusActivityDTO: ChangeDoneStatusActivityDTO,
+  ) {
+    return await this.repository.changeDoneStatus(
+      id,
+      changeDoneStatusActivityDTO,
+    );
   }
 }
