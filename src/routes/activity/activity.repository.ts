@@ -4,17 +4,61 @@ import { CreateActivityDTO } from './dto/create-activity.dto';
 import dayjs from '../../lib/dayjs';
 import { UpdateActivityDTO } from './dto/update-activity.dto';
 import { ChangeDoneStatusActivityDTO } from './dto/change-done-status-activity.dto';
+import { groupBy } from 'lodash';
 
 @Injectable()
 export class ActivityRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async find(trip_id: string) {
-    return await this.prisma.activity.findMany({
-      where: {
-        trip_id,
-      },
+    const trip = await this.prisma.trip.findUnique({
+      where: { id: trip_id },
+      include: { activities: true },
     });
+
+    if (!trip) {
+      throw new BadRequestException('Viagem não encontrada');
+    }
+
+    // Função para gerar todas as datas entre duas datas
+    const generateDateRange = (start: string, end: string) => {
+      const startDate = dayjs(start);
+      const endDate = dayjs(end);
+      const dateRange = [];
+      let currentDate = startDate;
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, 'day')
+      ) {
+        dateRange.push(currentDate.format('YYYY-MM-DD'));
+        currentDate = currentDate.add(1, 'day');
+      }
+
+      return dateRange;
+    };
+
+    // Gerar todas as datas no intervalo de starts_at a ends_at
+    const dateRange = generateDateRange(
+      trip.starts_at.toString(),
+      trip.ends_at.toString(),
+    );
+
+    // Agrupar atividades por data
+    const groupedActivities = groupBy(trip.activities, (activity) =>
+      dayjs(activity.occurs_at).format('YYYY-MM-DD'),
+    );
+
+    // Preencher os dias sem atividades
+    const activitiesByDay = dateRange.reduce(
+      (acc, date) => {
+        acc[date] = groupedActivities[date] || [];
+        return acc;
+      },
+      {} as Record<string, any[]>,
+    );
+
+    return activitiesByDay;
   }
 
   async findById(id: string) {

@@ -146,12 +146,12 @@ export class TripRepository {
       throw new BadRequestException('Viagem não encontrada.');
     }
 
-    if (dayjs(starts_at).isBefore(dayjs(), 'day')) {
+    if (dayjs(starts_at).isBefore(dayjs(trip.starts_at), 'day')) {
       throw new BadRequestException(
-        'A data de inicio deve ser maior que a data atual.',
+        'A data de inicio deve ser maior que a data inicial de inicio da viagem.',
       );
     }
-    if (dayjs(ends_at).isBefore(starts_at)) {
+    if (dayjs(ends_at).isBefore(trip.starts_at)) {
       throw new BadRequestException(
         'A data de término deve ser maior que a data de inicio.',
       );

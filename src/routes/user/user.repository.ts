@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { UpdateUserDTO } from './dto/update-user-dto';
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -19,11 +19,17 @@ export class UserRepository {
   }
 
   async findById(id: string) {
-    return await this.prisma.user.findUniqueOrThrow({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
       },
     });
+
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+
+    return user;
   }
 
   async update(id: string, updateUserDTO: UpdateUserDTO) {
