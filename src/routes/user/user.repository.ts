@@ -19,81 +19,65 @@ export class UserRepository {
   }
 
   async findById(id: string) {
-    const user = await this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: {
         id,
       },
     });
-
-    if (!user) {
-      throw new BadRequestException('Usuário não encontrado');
-    }
-
-    return user;
   }
 
-  async update(id: string, updateUserDTO: UpdateUserDTO) {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: {
-        id,
-      },
-    });
-
-    let imageUrl = user.image_url;
-
-    if (updateUserDTO.image) {
-      const fileName = `${id}.png`;
-
-      const { data: image } = await this.supabase.storage
-        .from('images')
-        .download(fileName);
-
-      if (image) {
-        const { error: deleteError } = await this.supabase.storage
-          .from('images')
-          .remove([fileName]);
-
-        if (deleteError) {
-          throw deleteError;
-        }
-      }
-
-      const base64Data = updateUserDTO.image.replace(
-        /^data:image\/\w+;base64,/,
-        '',
-      );
-      const imageBuffer = Buffer.from(base64Data, 'base64');
-
-      const { error: uploadError } = await this.supabase.storage
-        .from('images')
-        .upload(fileName, imageBuffer, {
-          contentType: 'image/png',
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data: signedUrlData, error: signedUrlError } =
-        await this.supabase.storage
-          .from('images')
-          .createSignedUrl(fileName, 60 * 60 * 24);
-
-      if (signedUrlError) {
-        throw signedUrlError;
-      }
-
-      imageUrl = signedUrlData.signedUrl;
-    }
-
+  async update(id: string, image_url: string, updateUserDTO: UpdateUserDTO) {
     return await this.prisma.user.update({
       where: {
         id,
       },
       data: {
         name: updateUserDTO.name,
-        image_url: imageUrl,
+        image_url,
       },
     });
+  }
+
+  async getImage(fileName: string) {
+    const { data: image } = await this.supabase.storage
+      .from('images')
+      .download(fileName);
+
+    return image;
+  }
+
+  async removeImage(fileName: string) {
+    const { error: deleteError } = await this.supabase.storage
+      .from('images')
+      .remove([fileName]);
+
+    if (deleteError) {
+      throw new BadRequestException(deleteError);
+    }
+  }
+
+  async uploadImage(fileName: string, imageBuffer: Buffer) {
+    const { error: uploadError } = await this.supabase.storage
+      .from('images')
+      .upload(fileName, imageBuffer, {
+        contentType: 'image/png',
+      });
+
+    if (uploadError) {
+      throw new BadRequestException(uploadError);
+    }
+  }
+
+  async getSignedUrl(fileName: string) {
+    const { data: signedUrlData, error: signedUrlError } =
+      await this.supabase.storage
+        .from('images')
+        .createSignedUrl(fileName, 60 * 60 * 24);
+
+    if (signedUrlError) {
+      throw new BadRequestException(signedUrlError);
+    }
+
+    return signedUrlData.signedUrl;
   }
 }
