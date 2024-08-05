@@ -31,7 +31,7 @@ export class TripService {
   async create(createTripDTO: CreateTripDTO) {
     const { user_id, emails_to_invite, ends_at, starts_at } = createTripDTO;
 
-    const user = this.findById(user_id);
+    const user = this.userRepository.findById(user_id);
 
     if (!user) {
       throw new BadRequestException('Usuário não encontrado.');
