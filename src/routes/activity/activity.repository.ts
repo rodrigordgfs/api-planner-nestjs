@@ -1,154 +1,33 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { CreateActivityDTO } from './dto/create-activity.dto';
-import dayjs from '../../lib/dayjs';
 import { UpdateActivityDTO } from './dto/update-activity.dto';
 import { ChangeDoneStatusActivityDTO } from './dto/change-done-status-activity.dto';
-import { groupBy } from 'lodash';
 
 @Injectable()
 export class ActivityRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async find(trip_id: string) {
-    const trip = await this.prisma.trip.findUnique({
-      where: { id: trip_id },
-      include: { activities: true },
-    });
-
-    if (!trip) {
-      throw new BadRequestException('Viagem não encontrada');
-    }
-
-    // Função para gerar todas as datas entre duas datas
-    const generateDateRange = (start: string, end: string) => {
-      const startDate = dayjs(start);
-      const endDate = dayjs(end);
-      const dateRange = [];
-      let currentDate = startDate;
-
-      while (
-        currentDate.isBefore(endDate) ||
-        currentDate.isSame(endDate, 'day')
-      ) {
-        dateRange.push(currentDate.format('YYYY-MM-DD'));
-        currentDate = currentDate.add(1, 'day');
-      }
-
-      return dateRange;
-    };
-
-    // Gerar todas as datas no intervalo de starts_at a ends_at
-    const dateRange = generateDateRange(
-      trip.starts_at.toString(),
-      trip.ends_at.toString(),
-    );
-
-    // Agrupar atividades por data
-    const groupedActivities = groupBy(trip.activities, (activity) =>
-      dayjs(activity.occurs_at).format('YYYY-MM-DD'),
-    );
-
-    // Preencher os dias sem atividades
-    const activitiesByDay = dateRange.reduce(
-      (acc, date) => {
-        acc[date] = groupedActivities[date] || [];
-        return acc;
-      },
-      {} as Record<string, any[]>,
-    );
-
-    return activitiesByDay;
-  }
-
   async findById(id: string) {
-    const activity = await this.prisma.activity.findUnique({
+    return await this.prisma.activity.findUnique({
       where: { id },
     });
-
-    if (!activity) {
-      throw new BadRequestException('Atividade não encontrada');
-    }
-
-    return activity;
   }
 
   async create(createActivityDTO: CreateActivityDTO) {
     const { occurs_at, title, trip_id } = createActivityDTO;
 
-    const trip = await this.prisma.trip.findUnique({
-      where: { id: trip_id },
-    });
-
-    if (!trip) {
-      throw new BadRequestException('Viagem não encontrada');
-    }
-
-    const occursAtUtc = dayjs(occurs_at).utc().toDate();
-
-    if (
-      dayjs(occursAtUtc)
-        .startOf('day')
-        .isBefore(dayjs(trip.starts_at).startOf('day'))
-    ) {
-      throw new BadRequestException(
-        'A atividade não pode ocorrer antes do início da viagem',
-      );
-    }
-
-    if (
-      dayjs(occursAtUtc)
-        .startOf('day')
-        .isAfter(dayjs(trip.ends_at).startOf('day'))
-    ) {
-      throw new BadRequestException(
-        'A atividade não pode ocorrer após o término da viagem',
-      );
-    }
-
     return await this.prisma.activity.create({
       data: {
         title,
-        occurs_at: occursAtUtc,
-        trip_id: trip_id,
+        occurs_at,
+        trip_id,
       },
     });
   }
 
   async update(id: string, updateActivityDTO: UpdateActivityDTO) {
     const { occurs_at, title } = updateActivityDTO;
-
-    const activity = await this.prisma.activity.findUnique({
-      where: { id },
-    });
-
-    if (!activity) {
-      throw new BadRequestException('Atividade não encontrada');
-    }
-
-    const trip = await this.prisma.trip.findUnique({
-      where: { id: activity.trip_id },
-    });
-
-    if (
-      dayjs(occurs_at)
-        .startOf('day')
-        .isBefore(dayjs(trip.starts_at).startOf('day'))
-    ) {
-      throw new BadRequestException(
-        'A data da atividade deve ser a partir da data de início da viagem.',
-      );
-    }
-
-    if (
-      dayjs(occurs_at)
-        .startOf('day')
-        .isAfter(dayjs(trip.ends_at).startOf('day'))
-    ) {
-      throw new BadRequestException(
-        'A data da atividade deve ser até a data de término da viagem.',
-      );
-    }
 
     return await this.prisma.activity.update({
       where: {
@@ -173,14 +52,6 @@ export class ActivityRepository {
     changeDoneStatusActivityDTO: ChangeDoneStatusActivityDTO,
   ) {
     const { is_done } = changeDoneStatusActivityDTO;
-
-    const activity = await this.prisma.activity.findUnique({
-      where: { id },
-    });
-
-    if (!activity) {
-      throw new BadRequestException('Atividade não encontrada');
-    }
 
     return await this.prisma.activity.update({
       select: { id: true, is_done: true },

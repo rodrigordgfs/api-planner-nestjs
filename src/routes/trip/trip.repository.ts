@@ -60,6 +60,13 @@ export class TripRepository {
     });
   }
 
+  async findByIdWithActivities(id: string) {
+    return await this.prisma.trip.findUnique({
+      where: { id },
+      include: { activities: true },
+    });
+  }
+
   async create(
     createTripDTO: CreateTripDTO,
     participants: Array<{
