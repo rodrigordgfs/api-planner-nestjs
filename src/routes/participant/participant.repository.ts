@@ -74,6 +74,16 @@ export class ParticipantRepository {
     });
   }
 
+  async findConfirmedParticipantsNotOwner(trip_id: string) {
+    return await this.prisma.participant.findMany({
+      where: {
+        trip_id,
+        is_confirmed: true,
+        is_owner: false,
+      },
+    });
+  }
+
   async create(createParticipantDTO: CreateParticipantDTO) {
     const { email, trip_id } = createParticipantDTO;
 

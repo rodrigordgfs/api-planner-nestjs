@@ -26,6 +26,14 @@ export class UserRepository {
     });
   }
 
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+
   async update(id: string, image_url: string, updateUserDTO: UpdateUserDTO) {
     return await this.prisma.user.update({
       where: {
